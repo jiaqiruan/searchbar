@@ -1,5 +1,6 @@
-import React, {useState} from "react";
-
+import React, {useState, useEffect} from "react";
+import { useDebounce } from "../custom_hooks/debounce";
+import { useThrottle } from "../custom_hooks/throttle";
 interface BookInfo {
 	id: string;
 	title: string;
@@ -8,6 +9,11 @@ interface BookInfo {
 const SearchBar:React.FC = () => {
     const [input, setInput] = useState<string>('');
 	const [books, setBooks] = useState<BookInfo[]>([]);
+
+    const debounceValue = useDebounce<string>(input, 1000);
+
+    const throttleValue = useThrottle<string>(input, 1000);
+
 
     const fetchBooks = async (queryName: string) => {
 		try {
@@ -33,6 +39,10 @@ const SearchBar:React.FC = () => {
 			console.log("error fetching data", error);
 		}		
 	}
+
+    useEffect(() => {
+        fetchBooks(debounceValue);
+      }, [debounceValue]);
 
     const handleInputChange = (event: any) => {
 		const inputContent = event.target.value;
